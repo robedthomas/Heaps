@@ -5,9 +5,28 @@ import java.util.Comparator;
  * An abstract class representing a definition of a priority heap.
  */
 
-public abstract class Heap<Type extends Comparable<Type>>
+public abstract class Heap<Type extends Comparable<Type>> extends PriorityQueue<Type>
 {
     /* * * * * PUBLIC API * * * * */
+
+    /**
+     * Implemented here to satisfy the PriorityQueue requirements. Equivalent to calling Push() on the item.
+     * @param item the item to add to the PriorityQueue.
+     */
+    public void Enqueue (Type item)
+    {
+        Push(item);
+    }
+
+    /**
+     * Implemented here to satisfy the PriorityQueue requirements. Equivalent to calling Pop().
+     * @return the topmost element of the PriorityQueue.
+     * @throws IndexOutOfBoundsException when called on an empty PriorityQueue.
+     */
+    public Type Dequeue ()
+    {
+        return Pop();
+    }
 
     /**
      * Adds a new item to the Heap.

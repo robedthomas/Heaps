@@ -6,7 +6,7 @@
 import java.util.ArrayList;
 import java.util.Comparator;
 
-public class BinaryHeap<Type extends Comparable<Type>> 
+public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
 {
     /* * * * * PUBLIC API * * * * */
 
@@ -17,6 +17,7 @@ public class BinaryHeap<Type extends Comparable<Type>>
     {
         Size = 0;
         Comparer = null;
+        Elems = new ArrayList<Type>();
     }
 
     /**
@@ -27,12 +28,14 @@ public class BinaryHeap<Type extends Comparable<Type>>
     {
         Size = 0;
         Comparer = comparer;
+        Elems = new ArrayList<Type>();
     }
 
     /**
      * Gets the number of items in this binary heap.
      * @return the number of items in this binary heap.
      */
+    @Override
     public int GetSize ()
     {
         return Size;
@@ -42,6 +45,7 @@ public class BinaryHeap<Type extends Comparable<Type>>
      * Reports whether or not this binary heap is empty.
      * @return true if this binary heap is empty, false otherwise.
      */
+    @Override
     public boolean IsEmpty ()
     {
         return Size == 0;
@@ -51,14 +55,15 @@ public class BinaryHeap<Type extends Comparable<Type>>
      * Adds a new item to the binary heap.
      * @param item the item to add to the binary heap.
      */
+    @Override
     public void Push (Type item)
     {
         /* Add the item at the next free space. */
         Elems.add(Size, item);
-        /* Float the new item. */
-        Float(Size);
         /* Increment the binary heap Size. */
         Size++;
+        /* Float the new item. */
+        Float(Size - 1);
     }
 
     /**
@@ -66,6 +71,7 @@ public class BinaryHeap<Type extends Comparable<Type>>
      * @return the topmost element of the binary heap.
      * @throws IndexOutOfBoundsException when called on an empty binary heap.
      */
+    @Override
     public Type Pop ()
     {
         /* If the binary heap is empty, throw an exception. */
@@ -100,10 +106,13 @@ public class BinaryHeap<Type extends Comparable<Type>>
     private void Float (int index)
     {
         /* If this item ranks higher than its parent, swap them, then float this item again. */
-        if (RanksHigher(ItemAt(index), ItemAt(ParentIndex(index))))
+        if (HasParent(index))
         {
-            SwapItems(index, ParentIndex(index));
-            Float(ParentIndex(index));
+            if (RanksHigher(ItemAt(index), ItemAt(ParentIndex(index))))
+            {
+                SwapItems(index, ParentIndex(index));
+                Float(ParentIndex(index));
+            }
         }
     }
 
@@ -115,16 +124,19 @@ public class BinaryHeap<Type extends Comparable<Type>>
     {
         int swappedIndex = -1;
         /* If this item ranks lower than its left child, swap them. */
-        if (RanksLower(ItemAt(index), ItemAt(LeftChild(index))))
+        if (HasLeftChild(index))
         {
-            SwapItems(index, LeftChild(index));
-            swappedIndex = LeftChild(index);
-        }
-        /* Otherwise, do the same for the right child too. */
-        else if (RanksLower(ItemAt(index), ItemAt(RightChild(index))))
-        {
-            SwapItems(index, RightChild(index));
-            swappedIndex = RightChild(index);
+            if (RanksLower(ItemAt(index), ItemAt(LeftChild(index))))
+            {
+                SwapItems(index, LeftChild(index));
+                swappedIndex = LeftChild(index);
+            }
+            /* Otherwise, do the same for the right child too. */
+            else if (HasRightChild(index) && RanksLower(ItemAt(index), ItemAt(RightChild(index))))
+            {
+                SwapItems(index, RightChild(index));
+                swappedIndex = RightChild(index);
+            }
         }
         /* If this item was swapped, sink it again. */
         if (swappedIndex >= 0)
@@ -140,7 +152,7 @@ public class BinaryHeap<Type extends Comparable<Type>>
      */
     private boolean IsValidIndex (int index)
     {
-        return index < Size;
+        return index >= 0 && index < Size;
     }
 
     /**
@@ -155,7 +167,7 @@ public class BinaryHeap<Type extends Comparable<Type>>
         {
             return Elems.get(index);
         }
-        throw new IndexOutOfBoundsException("Tried to get an item at an invalid index.");
+        throw new IndexOutOfBoundsException(String.format("Tried to get an item at an invalid index: %d.", index));
     }
 
     /**
@@ -270,5 +282,35 @@ public class BinaryHeap<Type extends Comparable<Type>>
             return childIndex;
         }
         return -1;
+    }
+
+    /**
+     * Determines whether or not the item at the given index has a parent.
+     * @param index the index of the item to check for a parent.
+     * @return true if the item at the given index has a parent. false otherwise.
+     */
+    private boolean HasParent (int index)
+    {
+        return ParentIndex(index) >= 0;
+    }
+
+    /**
+     * Determines whether or not the item at the given index has a left child.
+     * @param index the index of the item to check for a left child.
+     * @return true if the item at the given index has a left child. false otherwise.
+     */
+    private boolean HasLeftChild (int index)
+    {
+        return LeftChild(index) < Size;
+    }
+
+    /**
+     * Determines whether or not the item at the given index has a right child.
+     * @param index the index of the item to check for a right child.
+     * @return true if the item at the given index has a right child. false otherwise.
+     */
+    private boolean HasRightChild (int index)
+    {
+        return RightChild(index) < Size;
     }
 }

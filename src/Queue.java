@@ -3,7 +3,7 @@
  * A simple abstract queue class. The queue returns items in order of when they were added (first in - first out).
  */
 
-public abstract class Queue<Type extends Comparable<Type>>
+public abstract class Queue<Type extends Comparable<Type>> implements Iterable<Type>
 {
     /**
      * Gets the number of items in this Queue.

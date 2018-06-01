@@ -5,6 +5,7 @@
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
 {
@@ -91,6 +92,23 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
         return topItem;
     }
 
+    /**
+     * Converts this BinaryHeap to a string representation. This string will be a sequence of integers in the order
+     * they are stored in the heap, so an item's children are at twice the item's position.
+     * @return a string representing this BinaryHeap.
+     */
+    public String toString ()
+    {
+        String str = new String();
+        str += "[ ";
+        for (int i = 0; i < Size; i++)
+        {
+            str += ItemAt(i) + " ";
+        }
+        str += "]";
+        return str;
+    }
+
     /* * * * * PRIVATE FIELDS * * * * */
 
     private int Size = 0;
@@ -123,15 +141,31 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
     private void Sink (int index)
     {
         int swappedIndex = -1;
-        /* If this item ranks lower than its left child, swap them. */
+        /* Swap this item with whichever of its children ranks highest and also ranks higher than this item. */
         if (HasLeftChild(index))
         {
             if (RanksLower(ItemAt(index), ItemAt(LeftChild(index))))
             {
-                SwapItems(index, LeftChild(index));
-                swappedIndex = LeftChild(index);
+                if (HasRightChild(index) && RanksLower(ItemAt(index), ItemAt(RightChild(index))))
+                {
+                    /* If the parent ranks lower than both its items, swap with the child that ranks highest. */
+                    if (RanksLower(ItemAt(LeftChild(index)), ItemAt(RightChild(index))))
+                    {
+                        SwapItems(index, RightChild(index));
+                        swappedIndex = RightChild(index);
+                    }
+                    else
+                    {
+                        SwapItems(index, LeftChild(index));
+                        swappedIndex = LeftChild(index);
+                    }
+                }
+                else
+                {
+                    SwapItems(index, LeftChild(index));
+                    swappedIndex = LeftChild(index);
+                }
             }
-            /* Otherwise, do the same for the right child too. */
             else if (HasRightChild(index) && RanksLower(ItemAt(index), ItemAt(RightChild(index))))
             {
                 SwapItems(index, RightChild(index));
@@ -193,7 +227,10 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
             Elems.set(firstIndex, ItemAt(secondIndex));
             Elems.set(secondIndex, firstItem);
         }
-        throw new IndexOutOfBoundsException("Tried to swap two items using an invalid index.");
+        else
+        {
+            throw new IndexOutOfBoundsException("Tried to swap two items using an invalid index.");
+        }
     }
 
     /**
@@ -301,7 +338,7 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
      */
     private boolean HasLeftChild (int index)
     {
-        return LeftChild(index) < Size;
+        return IsValidIndex(LeftChild(index));
     }
 
     /**
@@ -311,6 +348,43 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
      */
     private boolean HasRightChild (int index)
     {
-        return RightChild(index) < Size;
+        return IsValidIndex(RightChild(index));
+    }
+
+    /**
+     * Returns the string representing the subtree starting at the given index.
+     * @param startIndex the index of the item to generate the subtree string of.
+     * @return a string representing the subtree starting at the given index.
+     */
+    private String GetSubtreeString (int startIndex)
+    {
+        String subtreeString = new String();
+        if (IsValidIndex(startIndex))
+        {
+            subtreeString += ItemAt(startIndex) + " ";
+            subtreeString += GetSubtreeString(LeftChild(startIndex));
+            subtreeString += GetSubtreeString(RightChild(startIndex));
+        }
+        return subtreeString;
+    }
+
+    @Override
+    public Iterator<Type> iterator()
+    {
+        Iterator<Type> iterator = new Iterator<Type>()
+        {
+            @Override
+            public boolean hasNext()
+            {
+                return GetSize() > 0;
+            }
+
+            @Override
+            public Type next()
+            {
+                return Pop();
+            }
+        };
+        return iterator;
     }
 }

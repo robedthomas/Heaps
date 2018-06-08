@@ -17,7 +17,7 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
     public BinaryHeap ()
     {
         Size = 0;
-        Comparer = null;
+        Comparer = DefaultComparer;
         Elems = new ArrayList<Type>();
     }
 
@@ -93,6 +93,30 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
     }
 
     /**
+     * Compares two items based on the Comparator this BinaryHeap is configured to use.
+     * @param item the item to be compared.
+     * @param other the item to compare to the first item.
+     * @return the result of comparing item to other (in that order).
+     */
+    public int CompareLikeHeap (Type item, Type other)
+    {
+        return Comparer.compare(item, other);
+    }
+
+    /**
+     * Verifies that two items follow the heap's invariant - that when an item popped from the heap is compared to
+     * an item popped from the heap later, the result will be non-positive. This indicates that the earlier item is
+     * sorted before the later item by the heap's underlying comparator.
+     * @param earlierItem an item popped earlier from the heap.
+     * @param laterItem an item popped later from the heap.
+     * @return true if earlierItem would be sorted before laterItem.
+     */
+    public boolean ItemsFollowHeapComparator (Type earlierItem, Type laterItem)
+    {
+        return CompareLikeHeap(earlierItem, laterItem) <= 0;
+    }
+
+    /**
      * Converts this BinaryHeap to a string representation. This string will be a sequence of integers in the order
      * they are stored in the heap, so an item's children are at twice the item's position.
      * @return a string representing this BinaryHeap.
@@ -114,6 +138,14 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
     private int Size = 0;
     private ArrayList<Type> Elems;
     private Comparator<Type> Comparer;
+    private final Comparator<Type> DefaultComparer = new Comparator<Type>()
+    {
+        @Override
+        public int compare(Type o1, Type o2)
+        {
+            return o1.compareTo(o2);
+        }
+    };
 
     /* * * * * PRIVATE METHODS * * * * */
 
@@ -241,11 +273,7 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
      */
     private int Compare (Type a, Type b)
     {
-        if (Comparer != null)
-        {
-            return Comparer.compare(a, b);
-        }
-        return a.compareTo(b);
+        return Comparer.compare(a, b);
     }
 
     /**

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.IntStream;
@@ -88,6 +89,7 @@ public class BinaryHeapTests
     @Test
     public void PopShouldReturnInNonDecreasingOrder ()
     {
+        System.err.println("---RETURN IN NON-DECREASING ORDER---");
         int numPushes = 32;
         int[] randomOrderList = IntStream.range(0, numPushes).toArray();
         for (int i = 0; i < numPushes; i++)
@@ -111,7 +113,7 @@ public class BinaryHeapTests
             int next = heap.Pop();
             System.err.print(next + " ");
             System.err.println(heap);
-            assert(previous <= next);
+            assertTrue(heap.ItemsFollowHeapComparator(previous, next));
             previous = next;
         }
         System.err.println();
@@ -139,5 +141,52 @@ public class BinaryHeapTests
         {
             assertTrue(b);
         }
+    }
+
+    /**
+     * Verifies that constructing a heap with a custom Comparator will make the BinaryHeap compare using that comparator.
+     * In particular, this test uses a comparator that ranks greater numbers higher and lesser numbers lower.
+     * This should result in the heap popping the greatest values first and the least values last.
+     */
+    @Test
+    public void TestCustomComparator ()
+    {
+        Comparator<Integer> customComparator = new Comparator<Integer>()
+        {
+            @Override
+            public int compare(Integer o1, Integer o2)
+            {
+                return o1.compareTo(o2) * -1;
+            }
+        };
+        heap = new BinaryHeap<>(customComparator);
+        System.err.println("---RETURN IN NON-INCREASING ORDER---");
+        int numPushes = 32;
+        int[] randomOrderList = IntStream.range(0, numPushes).toArray();
+        for (int i = 0; i < numPushes; i++)
+        {
+            int choice = random.nextInt(numPushes - i) + i;
+            int swap = randomOrderList[choice];
+            randomOrderList[choice] = randomOrderList[i];
+            randomOrderList[i] = swap;
+        }
+        System.err.print("Pushing order:\n");
+        for (int x : randomOrderList)
+        {
+            heap.Push(x);
+            System.err.print(x + " ");
+            System.err.println(heap);
+        }
+        System.err.print("\nPopping order:\n");
+        int previous = numPushes + 1;
+        while (!heap.IsEmpty())
+        {
+            int next = heap.Pop();
+            System.err.print(next + " ");
+            System.err.println(heap);
+            assertTrue(heap.ItemsFollowHeapComparator(previous, next));
+            previous = next;
+        }
+        System.err.println();
     }
 }

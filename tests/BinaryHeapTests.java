@@ -144,6 +144,26 @@ public class BinaryHeapTests
     }
 
     /**
+     * Verifies that utilizing the Iterator returned by the iterator() function does not alter the state of the heap.
+     */
+    @Test
+    public void IteratingDoesNotAlterHeap ()
+    {
+        int numPushes = 32;
+        int[] pushList = IntStream.range(0, numPushes).toArray();
+        for (int x : pushList)
+        {
+            heap.Push(x);
+        }
+        int topItem = heap.Peek();
+        for (int item : heap)
+        {
+            assertTrue(heap.GetSize() == numPushes);
+            assertEquals(topItem, (int)heap.Peek());
+        }
+    }
+
+    /**
      * Verifies that constructing a heap with a custom Comparator will make the BinaryHeap compare using that comparator.
      * In particular, this test uses a comparator that ranks greater numbers higher and lesser numbers lower.
      * This should result in the heap popping the greatest values first and the least values last.

@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
-public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
+public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type> implements Cloneable
 {
     /* * * * * PUBLIC API * * * * */
 
@@ -93,6 +93,23 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
     }
 
     /**
+     * Peeks at the top item in the heap.
+     * @return the item that would be returned by the next call to Pop().
+     * @throws IndexOutOfBoundsException when called on an empty binary heap.
+     */
+    public Type Peek ()
+    {
+        if (IsValidIndex(0))
+        {
+            return ItemAt(0);
+        }
+        else
+        {
+            throw new IndexOutOfBoundsException("Tried to peek at an empty binary heap.");
+        }
+    }
+
+    /**
      * Compares two items based on the Comparator this BinaryHeap is configured to use.
      * @param item the item to be compared.
      * @param other the item to compare to the first item.
@@ -131,6 +148,21 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
         }
         str += "]";
         return str;
+    }
+
+    /**
+     * Clones this heap, yielding a separate BinaryHeap object whose contents and properties are identical to this one's.
+     * @return a clone of this heap.
+     */
+    @Override
+    public BinaryHeap<Type> clone ()
+    {
+        BinaryHeap<Type> clone = new BinaryHeap<Type>(Comparer);
+        for (int i = 0; i < Size; i++)
+        {
+            clone.Push(Elems.get(i));
+        }
+        return clone;
     }
 
     /* * * * * PRIVATE FIELDS * * * * */
@@ -399,18 +431,19 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
     @Override
     public Iterator<Type> iterator()
     {
+        BinaryHeap<Type> clone = clone();
         Iterator<Type> iterator = new Iterator<Type>()
         {
             @Override
             public boolean hasNext()
             {
-                return GetSize() > 0;
+                return clone.GetSize() > 0;
             }
 
             @Override
             public Type next()
             {
-                return Pop();
+                return clone.Pop();
             }
         };
         return iterator;

@@ -52,4 +52,10 @@ public abstract class Heap<Type extends Comparable<Type>> extends PriorityQueue<
      * @return true if this Heap is empty, false otherwise.
      */
     public abstract boolean IsEmpty();
+
+    /**
+     * Determines whether or not this heap's items are correctly ordered to follow the underlying ordering.
+     * @return true if this heap's items are correctly ordered, false otherwise.
+     */
+    public abstract boolean ItemsAreInOrder ();
 }

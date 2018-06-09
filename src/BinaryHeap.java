@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 
-public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type> implements Cloneable
+public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type>
 {
     /* * * * * PUBLIC API * * * * */
 
@@ -50,6 +50,15 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type> implem
     public boolean IsEmpty ()
     {
         return Size == 0;
+    }
+
+    /**
+     * Gets the Comparator used to compare item in the heap.
+      * @return this heap's Comparator.
+     */
+    public Comparator<Type> GetComparator ()
+    {
+        return Comparer;
     }
 
     /**
@@ -110,17 +119,6 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type> implem
     }
 
     /**
-     * Compares two items based on the Comparator this BinaryHeap is configured to use.
-     * @param item the item to be compared.
-     * @param other the item to compare to the first item.
-     * @return the result of comparing item to other (in that order).
-     */
-    public int CompareLikeHeap (Type item, Type other)
-    {
-        return Comparer.compare(item, other);
-    }
-
-    /**
      * Verifies that two items follow the heap's invariant - that when an item popped from the heap is compared to
      * an item popped from the heap later, the result will be non-positive. This indicates that the earlier item is
      * sorted before the later item by the heap's underlying comparator.
@@ -130,7 +128,34 @@ public class BinaryHeap<Type extends Comparable<Type>> extends Heap<Type> implem
      */
     public boolean ItemsFollowHeapComparator (Type earlierItem, Type laterItem)
     {
-        return CompareLikeHeap(earlierItem, laterItem) <= 0;
+        return GetComparator().compare(earlierItem, laterItem) <= 0;
+    }
+
+    /**
+     * Determines whether or not this BinaryHeap's items are correctly ordered to follow the underlying ordering.
+     * @return true if this heap's items are correctly ordered, false otherwise.
+     */
+    @Override
+    public boolean ItemsAreInOrder ()
+    {
+        boolean misorderFound = false;
+        Type previousItem = null;
+        for (Type nextItem : this)
+        {
+            if (previousItem != null)
+            {
+                if (RanksHigher(nextItem, previousItem))
+                {
+                    misorderFound = true;
+                    break;
+                }
+            }
+            else
+            {
+                previousItem = nextItem;
+            }
+        }
+        return !misorderFound;
     }
 
     /**
